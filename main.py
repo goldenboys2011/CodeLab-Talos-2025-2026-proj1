@@ -1,6 +1,7 @@
 """
 Copyright: Odysseas Chryssos, Antonis Alexopoulos
 All rights reserved 2025-2026
+Cool Greek Games Studio
 """
 import pygame 
 import random
