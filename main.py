@@ -64,7 +64,6 @@ class Tile():
 
         texture_path = tileTypeTextures.get(typee)
         texture_path = os.path.join(os.path.dirname(__file__), texture_path)
-        print(texture_path)
         if texture_path and os.path.exists(texture_path):
             # Load and scale texture
             self.surface = pygame.image.load(texture_path).convert_alpha()
@@ -89,7 +88,7 @@ grassFloor = []
 
 for i in range(0, 40):
     for j in range(0,16):
-        if j < 8: tile = "grass" 
+        if random.randint(0, 1) >= 0.2 : tile = "grass" 
         else: tile = "stone"
         grassFloor.append(Tile(tile, False, i * 50, j * 50))
 
