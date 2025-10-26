@@ -1,4 +1,5 @@
 import pygame 
+import random
 
 screen = pygame.display.set_mode((400,800))
 pygame.display.toggle_fullscreen()
@@ -11,6 +12,12 @@ tileTypeTextures = {
     "wall": "path"
 }
 
+class Weapon():
+    def __init__(self, streangth, name, texture):
+        self.streangth = streangth
+        self.name = name
+        self.texture = texture
+        
 class Entity():
     def __init__(self, speed, strength, durabillity, weapon, secondary_weapon, shield, armor ):
         self.strength = strength  
@@ -19,6 +26,16 @@ class Entity():
         self.secondary_weapon = secondary_weapon
         self.shield = shield
         self.armor = armor
+
+    def attack(self, weapon, victim):
+        if weapon == 1:
+            weapon = self.weapon
+        elif weapon == 2:
+            weapon = self.secondary_weapon
+    
+        damageDealt = weapon.strength * (self.streangth / random.randint(0,1))
+    
+        victim.takeDamage(damageDealt)
 
 class Tile():
     def init(self, typee, wall, positionX, positionY):
