@@ -34,7 +34,7 @@ knights_Shield = Defense(19)
 
 # == Entity setup ===
 knight = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
-
+dummy = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
 # === Main Game loop ====
 while running:
     dt = clock.tick(60) / 1000  # seconds since last frame (for frame-independent movement)
@@ -76,3 +76,7 @@ while running:
         grass.draw(camera)
 
     knight.draw(camera)
+    dummy.draw(camera)
+
+    # movement test
+    dummy.updatePosition(random.randrange(1, 5), 0)        
