@@ -13,6 +13,10 @@ pygame.display.toggle_fullscreen()
 running = True
 
 # === Variabled ===
+pML = False
+pMR = False
+pMU = False
+pMD = False
 tileSize = 50
 tileTypeTextures = {
     "grass": "./media/grass.png",
@@ -28,23 +32,31 @@ class Weapon():
         self.streangth = streangth
         self.name = name
         self.texture = texture
-Class Defense():
+
+class Defense():
     def __init__(self, durabillity):
-        self.Durabillity = Durabillity #Counted in how many hits it takes before it breaks
+        self.Durabillity = durabillity #Counted in how many hits it takes before it breaks
         
 
 
         
 class Entity():
-    def __init__(self, health, speed, strength, weapon, secondary_weapon, shield, armor):
+    def __init__(self, health, speed, strength, weapon, secondary_weapon, shield, texture):
         self.strength = strength  
         self.weapon = weapon
         self.secondary_weapon = secondary_weapon
         self.shield = shield
-        self.armor = armor
         self.speed = speed
         self.health = health
+        self.texture = texture
 
+        self.posX = 50
+        self.posY = 50
+
+        self.surface = pygame.image.load(texture).convert_alpha()
+        self.surface = pygame.transform.scale(self.surface, (50, 50))
+        self.rect = self.surface.get_rect(topleft=(self.posX, self.posY))
+        
     def attack(self, weapon, victim):
         if weapon == 1:
             weapon = self.weapon
@@ -58,6 +70,18 @@ class Entity():
     
     def takeDamage(self, damageToBeDealt):
         self.health =- damageToBeDealt
+    
+    def draw(self):
+        screen.blit(self.surface, self.rect)
+
+    def updatePosition(self, velX, velY):
+        self.posX += velX
+        self.posY += velY
+        self.surface = pygame.transform.scale(self.surface, (50, 50))
+        self.rect = self.surface.get_rect(topleft=(self.posX, self.posY))
+
+        # Should also send a packet to the server
+
 
 
 
@@ -87,12 +111,12 @@ class Tile():
 
 
                   #==Weapons/Gear==
-Knights_Sword = Weapon(90, "Knights_Sword")
-Knights_Shield = Defense(19)
+knights_Sword = Weapon(90, "knights_Sword", "./media/grass.png")
+knights_Shield = Defense(19)
 
                         #==Characters==
 
-Knight = Entity(90, 70, 98, "Knights_Sword","None," "Knights_Shield", True  )
+knight = Entity(90, 1, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
 
 # === Server Communication ===
 def sendPacket(packetId):
@@ -109,8 +133,7 @@ for i in range(0, 40):
         else: tile = "stone"
         grassFloor.append(Tile(tile, False, i * 50, j * 50))
 
-# == En
-tity setup ===
+# == Entity setup ===
 pass
 
 # === Main Game loop ====
@@ -124,6 +147,49 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
 
+            # === Movement ===
+            if event.key == pygame.K_a:
+                pML = True
+                pMR = False
+                
+            if event.key == pygame.K_d:
+                pMR = True
+                pML = False
+            
+            if event.key == pygame.K_w:
+                pMU = True
+                pMD = False
+            
+            if event.key == pygame.K_s:
+                pMD = True
+                pMU = False
+                                
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_a:
+                pML = False
+                
+            if event.key == pygame.K_d:
+                pMR = False  
+            
+            if event.key == pygame.K_w:
+                pMU = False  
+
+            if event.key == pygame.K_s:
+                pMD = False  
+        
+
+        if pMD:
+            knight.updatePosition(0, (1.2 * knight.speed))
+        elif pMU:
+            knight.updatePosition(0, -(1.2 * knight.speed))
+        if pMR:
+            knight.updatePosition((1.2 * knight.speed), 0)
+        if pML:
+            knight.updatePosition(-(1.2 * knight.speed), 0)
+
+
     # === Object Drawing ===
     for grass in grassFloor:
         grass.draw()
+
+    knight.draw()
