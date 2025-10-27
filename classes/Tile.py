@@ -5,7 +5,8 @@ tileTypeTextures = {
     "grass": "../media/grass.png",
     "stone": "../media/stone.png",
     "wood": "path",
-    "wall": "path"
+    "wall": "path",
+    "path": "../media/path.png"
 }
 
 class Tile():

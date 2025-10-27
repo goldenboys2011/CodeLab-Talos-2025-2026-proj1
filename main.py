@@ -5,6 +5,7 @@ Cool Greek Games Studio
 """
 import pygame 
 import random
+from datetime import datetime, timedelta
 from classes.Camera import Camera
 from classes.Weapon import Weapon
 from classes.Defence import Defense
@@ -15,7 +16,7 @@ from classes.Entities.Projectiles.Arrow import Arrow
 
 # === Setup ===
 camera = Camera(400, 800)
-
+lastDash = datetime.now()
 # === Server Communication ===
 def sendPacket(packetId):
     pass
@@ -26,7 +27,7 @@ grassFloor = []
 for i in range(0, mapWidth):
     for j in range(0,mapHeight):
         if random.randint(0, 1) >= 0.2 : tile = "grass" 
-        else: tile = "stone"
+        else: tile = "path"
         grassFloor.append(Tile(tile, False, i * tileSize, j * tileSize))
 
 # == Weapon Setup ==
@@ -58,12 +59,32 @@ while running:
 
     if keys[pygame.K_a]:
         moveX -= 1
+        direction = "left"
     if keys[pygame.K_d]:
         moveX += 1
+        direction = "right"
     if keys[pygame.K_w]:
         moveY -= 1
+        direction = "up"
     if keys[pygame.K_s]:
         moveY += 1
+        direction = "down"
+    
+    # DASH
+
+    if keys[pygame.K_SPACE] and datetime.now() - lastDash >= timedelta(seconds=0.5):
+        lastDash = datetime.now()
+        match direction:
+            case "left":
+                moveX -= 30
+            case "right":
+                moveX += 30
+            case "up":
+                moveY -= 30
+            case "down":
+                moveY += 30
+        
+    direction = "none"
 
     # Normalize diagonal movement
     if moveX != 0 and moveY != 0:
