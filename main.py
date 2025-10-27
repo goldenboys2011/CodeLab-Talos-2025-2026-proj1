@@ -8,9 +8,10 @@ import random
 from classes.Camera import Camera
 from classes.Weapon import Weapon
 from classes.Defence import Defense
-from classes.Entity import Entity
+from classes.Entities.Entity import Entity
 from classes.Tile import Tile
 from config.config import screen, running, tileSize, clock, mapHeight, mapWidth
+from classes.Entities.Projectiles.Arrow import Arrow
 
 # === Setup ===
 camera = Camera(400, 800)
@@ -33,8 +34,11 @@ knights_Sword = Weapon(90, "knights_Sword", "./media/grass.png")
 knights_Shield = Defense(19)
 
 # == Entity setup ===
-knight = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
+player = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
 dummy = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
+
+testArrow = Arrow(600, 500, 5, 0)
+arrows = [testArrow]
 # === Main Game loop ====
 while running:
     dt = clock.tick(60) / 1000  # seconds since last frame (for frame-independent movement)
@@ -66,17 +70,29 @@ while running:
         moveX *= 0.7071  # 1/sqrt(2)
         moveY *= 0.7071
 
-    knight.updatePosition(moveX * speed * dt, moveY * speed * dt)           
+    player.updatePosition(moveX * speed * dt, moveY * speed * dt)           
 
 
     # === Object Drawing ===
-    camera.follow(knight)
+    camera.follow(player)
 
     for grass in grassFloor:
         grass.draw(camera)
 
-    knight.draw(camera)
+    player.draw(camera)
     dummy.draw(camera)
 
     # movement test
-    dummy.updatePosition(random.randrange(1, 5), 0)        
+    dummy.updatePosition(random.randrange(1, 5), 0)
+
+    for arrow in arrows:
+        arrow.update()
+        arrow.draw(camera)
+
+        if arrow.colideRect(player):
+            arrow.dead = True
+            player.takeDamage(arrow.strength)
+        if arrow.dead:
+            arrows.remove(arrow)
+    
+    print(player.health)
