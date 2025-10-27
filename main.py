@@ -21,17 +21,23 @@ tileTypeTextures = {
     "wall": "path"
 }
 
+
 # === Classes ===
 class Weapon():
     def __init__(self, streangth, name, texture):
         self.streangth = streangth
         self.name = name
         self.texture = texture
+Class Defense():
+    def __init__(self, durabillity):
+        self.Durabillity = Durabillity #Counted in how many hits it takes before it breaks
+        
+
+
         
 class Entity():
-    def __init__(self, health, speed, strength, durabillity, weapon, secondary_weapon, shield, armor):
+    def __init__(self, health, speed, strength, weapon, secondary_weapon, shield, armor):
         self.strength = strength  
-        self.durabillity = durabillity
         self.weapon = weapon
         self.secondary_weapon = secondary_weapon
         self.shield = shield
@@ -52,6 +58,8 @@ class Entity():
     
     def takeDamage(self, damageToBeDealt):
         self.health =- damageToBeDealt
+
+
 
 class Tile():
     def __init__(self, typee, wall, positionX, positionY):
@@ -77,6 +85,15 @@ class Tile():
     def draw(self):
         screen.blit(self.surface, self.rect)
 
+
+                  #==Weapons/Gear==
+Knights_Sword = Weapon(90, "Knights_Sword")
+Knights_Shield = Defense(19)
+
+                        #==Characters==
+
+Knight = Entity(90, 70, 98, "Knights_Sword","None," "Knights_Shield", True  )
+
 # === Server Communication ===
 def sendPacket(packetId):
     pass
@@ -92,7 +109,8 @@ for i in range(0, 40):
         else: tile = "stone"
         grassFloor.append(Tile(tile, False, i * 50, j * 50))
 
-# == Entity setup ===
+# == En
+tity setup ===
 pass
 
 # === Main Game loop ====
