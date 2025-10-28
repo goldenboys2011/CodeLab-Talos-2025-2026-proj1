@@ -2,7 +2,7 @@ import random
 import pygame
 from config.config import tileSize, screen
 
-class Entity():
+class Character():
     def __init__(self, health, speed, strength, weapon, secondary_weapon, shield, texture):
         self.strength = strength  
         self.weapon = weapon
@@ -11,6 +11,12 @@ class Entity():
         self.speed = speed
         self.health = health
         self.texture = texture
+
+        self.dashing = False
+        self.dash_dir = pygame.Vector2(0, 0)
+        self.dash_time = 0
+        self.dash_duration = 0.15  # seconds
+        self.dash_speed = 800      # pixels per second
 
         self.posX = 800
         self.posY = 500
@@ -36,9 +42,21 @@ class Entity():
     def draw(self, camera):
         screen.blit(self.surface, (self.posX - camera.offset_x, self.posY - camera.offset_y))
 
-    def updatePosition(self, velX, velY):
-        self.posX += velX
-        self.posY += velY
+    def updatePosition(self, velX, velY, dt):
+        # --- Handle dash movement ---
+        if self.dashing:
+            self.dash_time += dt
+            if self.dash_time < self.dash_duration:
+                self.posX += self.dash_dir.x * self.dash_speed * dt
+                self.posY += self.dash_dir.y * self.dash_speed * dt
+            else:
+                self.dashing = False  # dash ended
+
+        # --- Handle normal movement ---
+        else:
+            self.posX += velX * dt
+            self.posY += velY * dt
+
         self.rect.topleft = (self.posX, self.posY)
 
-        # Should also send a packet to the server
+

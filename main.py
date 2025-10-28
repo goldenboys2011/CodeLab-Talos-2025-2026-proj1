@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from classes.Camera import Camera
 from classes.Weapon import Weapon
 from classes.Defence import Defense
-from classes.Entities.Entity import Entity
+from classes.Entities.Character import Character
 from classes.Tile import Tile
 from config.config import screen, running, tileSize, clock, mapHeight, mapWidth
 from classes.Entities.Projectiles.Arrow import Arrow
@@ -35,8 +35,8 @@ knights_Sword = Weapon(90, "knights_Sword", "./media/grass.png")
 knights_Shield = Defense(19)
 
 # == Entity setup ===
-player = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
-dummy = Entity(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
+player = Character(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
+dummy = Character(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
 
 testArrow = Arrow(600, 500, 5, 0)
 arrows = [testArrow]
@@ -72,17 +72,21 @@ while running:
     
     # DASH
 
-    if keys[pygame.K_SPACE] and datetime.now() - lastDash >= timedelta(seconds=0.5):
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and datetime.now() - lastDash >= timedelta(seconds=0.5):
         lastDash = datetime.now()
+        player.dashing = True
+        player.dash_time = 0
+        player.dash_dir = pygame.Vector2(0, 0)
         match direction:
             case "left":
-                moveX -= 30
+                player.dash_dir.x = -1
             case "right":
-                moveX += 30
+                player.dash_dir.x = 1
             case "up":
-                moveY -= 30
+                player.dash_dir.y = -1
             case "down":
-                moveY += 30
+                player.dash_dir.y = 1
+
         
     direction = "none"
 
@@ -91,8 +95,7 @@ while running:
         moveX *= 0.7071  # 1/sqrt(2)
         moveY *= 0.7071
 
-    player.updatePosition(moveX * speed * dt, moveY * speed * dt)           
-
+    player.updatePosition(moveX * speed, moveY * speed, dt)
 
     # === Object Drawing ===
     camera.follow(player)
@@ -104,7 +107,7 @@ while running:
     dummy.draw(camera)
 
     # movement test
-    dummy.updatePosition(random.randrange(1, 5), 0)
+    dummy.updatePosition(200, 0, dt)
 
     for arrow in arrows:
         arrow.update()
