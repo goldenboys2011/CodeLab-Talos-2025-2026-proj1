@@ -11,6 +11,8 @@ class Character():
         self.speed = speed
         self.health = health
         self.texture = texture
+        self.dead = False
+        self.killer = None
 
         self.dashing = False
         self.dash_dir = pygame.Vector2(0, 0)
@@ -32,12 +34,16 @@ class Character():
             weapon = self.secondary_weapon
         
          # Kai ean theloume prevent cheating k kala auto kanonika sto server (opos k genika to entity management)
-        damageDealt = weapon.strength * (self.streangth / random.uniform(0.5, 1.5))
+        damageDealt = weapon.streangth * (self.strength / random.uniform(0.5, 1.5))
     
-        victim.takeDamage(damageDealt) # Auto einai gia offline. gia online the prepi na stelnoume packet!
+        victim.takeDamage(damageDealt, self) # Auto einai gia offline. gia online the prepi na stelnoume packet!
     
-    def takeDamage(self, damageToBeDealt):
+    def takeDamage(self, damageToBeDealt, attacker):
         self.health -= damageToBeDealt
+
+        if self.health <= 0:
+            self.dead = True
+            self.killer = attacker
     
     def draw(self, camera):
         screen.blit(self.surface, (self.posX - camera.offset_x, self.posY - camera.offset_y))

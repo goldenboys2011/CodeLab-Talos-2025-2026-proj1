@@ -1,11 +1,11 @@
 from classes.Entities.Projectile import Projectile
 
 class Arrow(Projectile):
-    def __init__(self, posX, posY, velX, velY):
+    def __init__(self, posX, posY, velX, velY, speed, streangth, owner):
         self.velX = velX
         self.velY = velY
         texture = "./media/arrow.png"
-        super().__init__(speed=10, strength=5, texture=texture, posX=posX, posY=posY)
+        super().__init__(speed=speed, strength=streangth, texture=texture, posX=posX, posY=posY, owner = owner)
     def update(self):
         self.posX += self.velX
         self.posY += self.velY

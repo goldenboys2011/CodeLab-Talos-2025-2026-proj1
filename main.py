@@ -4,58 +4,45 @@ All rights reserved 2025-2026
 Cool Greek Games Studio
 """
 import pygame 
-import random
 from datetime import datetime, timedelta
 from classes.Camera import Camera
 from classes.Weapon import Weapon
 from classes.Defence import Defense
 from classes.Entities.Character import Character
-from classes.Tile import Tile
-from config.config import screen, running, tileSize, clock, mapHeight, mapWidth
+from config.config import screen, running, clock
 from classes.Entities.Projectiles.Arrow import Arrow
+from screens.inGame import grassFloor, UI
 
 # === Setup ===
 camera = Camera(400, 800)
 lastDash = datetime.now()
+
 # === Server Communication ===
 def sendPacket(packetId):
     pass
-
-# == Tile setup ==
-grassFloor = []
-
-for i in range(0, mapWidth):
-    for j in range(0,mapHeight):
-        if random.randint(0, 1) >= 0.2 : tile = "grass" 
-        else: tile = "path"
-        grassFloor.append(Tile(tile, False, i * tileSize, j * tileSize))
 
 # == Weapon Setup ==
 knights_Sword = Weapon(90, "knights_Sword", "./media/grass.png")
 knights_Shield = Defense(19)
 
 # == Entity setup ===
-player = Character(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
-dummy = Character(90, 10, 98, "knights_Sword","None", "knights_Shield", "./media/player.png")
+player = Character(90, 10, 98, knights_Sword,"None", "knights_Shield", "./media/player.png")
+dummy = Character(90, 10, 98, knights_Sword,"None", "knights_Shield", "./media/player.png")
+dummy.posX -= 250
 
-testArrow = Arrow(600, 500, 5, 0)
+testArrow = Arrow(600, 500, 5, 0, 5, 100, dummy)
 arrows = [testArrow]
+
 # === Main Game loop ====
 while running:
-    dt = clock.tick(60) / 1000  # seconds since last frame (for frame-independent movement)
+    dt = clock.tick(60) / 1000
     pygame.display.flip()
     screen.fill("red")
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            pygame.quit()
-            exit()
 
     # === Key input ===
     keys = pygame.key.get_pressed()
     moveX, moveY = 0, 0
-    speed = 200  # pixels per second
+    speed = 200
 
     if keys[pygame.K_a]:
         moveX -= 1
@@ -70,44 +57,47 @@ while running:
         moveY += 1
         direction = "down"
     
-    # DASH
-
-    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and datetime.now() - lastDash >= timedelta(seconds=0.5):
-        lastDash = datetime.now()
-        player.dashing = True
-        player.dash_time = 0
-        player.dash_dir = pygame.Vector2(0, 0)
-        match direction:
-            case "left":
-                player.dash_dir.x = -1
-            case "right":
-                player.dash_dir.x = 1
-            case "up":
-                player.dash_dir.y = -1
-            case "down":
-                player.dash_dir.y = 1
-
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            pygame.quit()
+            exit()
+            
+        # DASH
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and datetime.now() - lastDash >= timedelta(seconds=0.5):
+            lastDash = datetime.now()
+            player.dashing = True
+            player.dash_time = 0
+            player.dash_dir = pygame.Vector2(0, 0)
+            match direction:
+                case "left":
+                    player.dash_dir.x = -1
+                case "right":
+                    player.dash_dir.x = 1
+                case "up":
+                    player.dash_dir.y = -1
+                case "down":
+                    player.dash_dir.y = 1
         
     direction = "none"
 
-    # Normalize diagonal movement
     if moveX != 0 and moveY != 0:
-        moveX *= 0.7071  # 1/sqrt(2)
+        moveX *= 0.7071
         moveY *= 0.7071
 
     player.updatePosition(moveX * speed, moveY * speed, dt)
 
     # === Object Drawing ===
-    camera.follow(player)
-
     for grass in grassFloor:
         grass.draw(camera)
 
-    player.draw(camera)
-    dummy.draw(camera)
+    if not player.dead: 
+        player.draw(camera) 
+        camera.follow(player)
+    else: camera.follow(player.killer)
 
-    # movement test
-    dummy.updatePosition(200, 0, dt)
+    dummy.draw(camera)
 
     for arrow in arrows:
         arrow.update()
@@ -115,8 +105,9 @@ while running:
 
         if arrow.colideRect(player):
             arrow.dead = True
-            player.takeDamage(arrow.strength)
+            player.takeDamage(arrow.strength, arrow.owner)
         if arrow.dead:
             arrows.remove(arrow)
-    
-    print(player.health)
+
+    for item in UI:
+        item.draw()

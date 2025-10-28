@@ -2,12 +2,13 @@ import pygame
 from config.config import tileSize, screen
 
 class Projectile():
-    def __init__(self, speed, strength, texture, posX, posY):
+    def __init__(self, speed, strength, texture, posX, posY, owner):
         self.strength = strength  
         self.speed = speed
         self.texture = texture
         self.dead = False
-        
+        self.owner = owner
+
         self.posX = posX
         self.posY = posY
         self.startX = posX
